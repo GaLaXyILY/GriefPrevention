@@ -46,8 +46,11 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -392,6 +395,14 @@ public class GriefPrevention extends JavaPlugin
             new MetricsHandler(this);
         }
         catch (Throwable ignored) {}
+        Bukkit.getPluginManager().registerEvents(new WorldLoadListener(), this);
+    }
+
+    private class WorldLoadListener implements Listener {
+        @EventHandler
+        public void onWorldLoad(WorldLoadEvent event) {
+            loadConfig();
+        }
     }
 
     private void loadConfig()
@@ -691,6 +702,7 @@ public class GriefPrevention extends JavaPlugin
         this.config_logs_mutedChatEnabled = config.getBoolean("GriefPrevention.Abridged Logs.Included Entry Types.Muted Chat Messages", false);
 
         //claims mode by world
+        outConfig.set("GriefPrevention.Claims.Mode", config.get("GriefPrevention.Claims.Mode"));
         for (World world : this.config_claims_worldModes.keySet())
         {
             outConfig.set(
@@ -755,6 +767,7 @@ public class GriefPrevention extends JavaPlugin
         outConfig.set("GriefPrevention.Spam.DeathMessageCooldownSeconds", this.config_spam_deathMessageCooldownSeconds);
         outConfig.set("GriefPrevention.Spam.Logout Message Delay In Seconds", this.config_spam_logoutMessageDelaySeconds);
 
+        outConfig.set("GriefPrevention.PvP.RulesEnabledInWorld", config.get("GriefPrevention.PvP.RulesEnabledInWorld"));
         for (World world : worlds)
         {
             outConfig.set("GriefPrevention.PvP.RulesEnabledInWorld." + world.getName(), this.pvpRulesApply(world));
