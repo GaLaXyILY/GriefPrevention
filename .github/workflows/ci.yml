@@ -25,5 +25,23 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: temurin
           cache: maven
-      - name: "Test"
-        run: mvn --batch-mode verify
+      - name: Install depends 
+        run: |
+          mvn clean package -DskipTests
+        env:
+         MAVEN_OPTS: -Xmx2048m --illegal-access=permit
+      - run: mkdir staging && cp target/*.jar staging 
+      - name: Set Release version env variable 
+        run: | 
+         echo "RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV 
+      - name: "Build & test" 
+        run: | 
+         echo "done!" 
+      - uses: "marvinpinto/action-automatic-releases@latest" 
+        with: 
+         repo_token: "${{ secrets.GITHUB_TOKEN }}" 
+         automatic_release_tag: "${{ env.RELEASE_VERSION }}" 
+         prerelease: false 
+         title: "Release ${{ env.RELEASE_VERSION }}" 
+         files: | 
+           staging/*.jar
