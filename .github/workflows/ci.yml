@@ -1,11 +1,11 @@
 name: CI
-workflow_dispatch:  
+on:
+  workflow_dispatch:  
     inputs:  
       logLevel:  
         description: 'Log level'  
         required: true  
         default: 'warning'
-on:
   push:
   pull_request:
 
